@@ -632,9 +632,7 @@ def main_application(global_vars: dict) -> None:
     image_path = os.path.join(os.getcwd(), "images", "bnr1.png")
     image = Image.open(image_path)
     # Center the image using Streamlit's layout feature
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.image(image, width=None, clamp=True, channels="RGB", output_format="PNG")
+    st.image(image, use_column_width="auto" , clamp=True, channels="RGB", output_format="PNG")
 
     # Instruction text
     st.markdown("""
