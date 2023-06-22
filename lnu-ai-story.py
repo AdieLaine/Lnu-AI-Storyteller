@@ -368,7 +368,7 @@ def main_application(global_vars: dict) -> None:
 
     # Load and display the image
     image = Image.open(image_path)
-    st.sidebar.image(image, use_column_width=True, clamp=True, channels="RGB", output_format="png")
+    st.sidebar.image(image, use_column_width="auto", clamp=True, channels="RGB", output_format="png")
 
     # Instruction text
     st.sidebar.markdown("""
