@@ -366,6 +366,9 @@ def main_application(global_vars: dict) -> None:
     # Define file path for "bnr1.png"
     image_path = os.path.join(os.getcwd(), "images", "bnr1.png")
 
+    # Initialize sidebar
+    sidebar = st.sidebar
+
     # Load and display the image
     image = Image.open(image_path)
     st.sidebar.image(image, use_column_width="auto", clamp=True, channels="RGB", output_format="png")
@@ -373,20 +376,16 @@ def main_application(global_vars: dict) -> None:
     # Instruction text
     st.sidebar.markdown("""
         <div style="text-align: center;">
-            <div class="big-font -text center-text" style="color: crimson; font-size: 24px;">Generate a Story</div>
+            <div class="big-font -text center-text" style="color: ForestGreen; font-size: 24px;">Generate a Story</div>
         </div>
         <ul>
-            <li>Type an English word into the 'Search for a word' field.</li>
-            <li>Select a Mi'kmaq word from the 'Similar words' list.</li>
-            <li>Click Generate Story and an audio and visual story will be generated.</li>
+            <li>Type an <strong><span style="color: cornflowerblue;">English word</span></strong> into the <strong><span style="color: Ivory;">Search for a word</span></strong> field and press <strong><span style="color: Ivory;">Return</span></strong>.</li>
+            <li>Select a <strong><span style="color: crimson;">Mi'kmaq word</span></strong> from the <strong><span style="color: Ivory;">Similar words</span></strong> dropdown list.</li>
+            <li>Click <strong><span style="color: Ivory;">Generate Story</span></strong> and an audio and visual story will be created.</li>
         </ul>
     """, unsafe_allow_html=True)
 
-    st.sidebar.markdown("---")
     search_word = st.sidebar.text_input("Search for a word", value="")
-
-    # Initialize sidebar
-    sidebar = st.sidebar
 
     # Center the image using Streamlit's layout feature
     col1, col2, col3 = st.columns([1, 2, 1])
