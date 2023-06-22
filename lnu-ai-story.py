@@ -651,10 +651,14 @@ def main_application(global_vars: dict) -> None:
             </ul>
         </div>
     """, unsafe_allow_html=True)
+    st.info("Use the sidebar to generate your story.")
     st.markdown("---")
-
     # Initialize sidebar
     sidebar = st.sidebar
+    
+    # TTS service selection in the sidebar
+
+    tts_settings["tts_audio"] = 'gtts'
 
     # Load and display the image
     st.sidebar.image(image, use_column_width="auto", clamp=True, channels="RGB", output_format="png")
@@ -709,7 +713,7 @@ def main_application(global_vars: dict) -> None:
                 selected_word = similar_words_meanings[0]
 
         if not selected_word:
-            st.sidebar.write("No similar word found.")
+            st.sidebar.warning("No similar word found.")
         
         if selected_word:
             # Get index of the selected word in dataframe
@@ -727,10 +731,7 @@ def main_application(global_vars: dict) -> None:
     if selected_word:
         display_word_details_main(selected_word, all_word_details, tts_settings, sidebar)
 
-        # TTS service selection in the sidebar
         tts_service = sidebar.selectbox("Select a TTS service", ['gtts'], key="tts_service_selectbox", index=0)
-        tts_settings["tts_audio"] = tts_service if tts_service else 'gtts'
-
         # Display selected word below submit button
         st.sidebar.markdown(f"Selected word: **{selected_word}**")
         
