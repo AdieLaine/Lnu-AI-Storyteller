@@ -60,12 +60,6 @@ Lnu-AI is an Artificial Intelligence system developed to serve as a bridge betwe
 4. Replace "your-openai-key" in the .env file with your actual OpenAI API Key.
 5. If required, replace other variables in the .env file based on your configuration.
 
-### <span style="color: white;">Audio Files</span>
-
-1. Because these audio files are sourced from a resource that has expressed a common creative license, we want to honor that and so we will only include a small sample of the audio files. This allows the program to still demonstrate the features within the Sound of Words function. If you would like to access the full audio files, please contact us and we will provide you with the information to access the full audio files.
-
-2. For demonstrative purposes, we've kept files for any Mi'kmaq word found that begins with the letter 'Q or q'. These words will play the audio file and will provide the sound of words visualization.
-
 ---
 
 ## <span style="color: white;">Usage</span>

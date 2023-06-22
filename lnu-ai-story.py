@@ -274,7 +274,7 @@ def generate_openai_images(prompt, role="DALL-E", context="In the creative and v
     """
     try:
         full_prompt = f"{context} {prompt}"
-        truncated_prompt = full_prompt[:500]
+        truncated_prompt = full_prompt[:300]
         prompt_settings = {
             "model": "image-alpha-001",
             "prompt": truncated_prompt,
@@ -594,10 +594,6 @@ def generate_story(all_word_details: dict, theme: str, story_word: str, image_th
     # If there is no such variable defined, use "gpt-4-0613" as the default model.
     # You may want to replace this with a different model name if a new version is available.
     
-    model = os.getenv("CHAT_MODEL_SELECTION", "gpt-4-0613")
-
-    if model == "gpt-4-0613":
-        st.info("Environment variable for MODEL_SELECTION is not set, using default model: gpt-4-0613")
 
     # Define the system's role and content. The system plays the role of a Mi'kmaq storyteller.
     prompt_system = {
