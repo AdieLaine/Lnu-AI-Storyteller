@@ -68,7 +68,6 @@ CUSTOM_CSS = """
     </style>
 """
 
-
 # Streamlit configurations
 st.set_page_config(
     page_title="Lnu-AI - An Indigenous AI System",
@@ -349,161 +348,6 @@ def enhance_with_gpt(prompt, final_reply, models):
     return final_reply
 
 
-def main_application(global_vars: dict) -> None:
-    """
-    Main application function.
-
-    Args:
-        global_vars (dict): A dictionary containing all global variables.
-    """
-    all_word_details = global_vars['all_word_details']
-    tts_settings = global_vars['tts_settings']
-    
-    # Custom CSS for the image and title
-    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
-    
-
-    # Define file path for "bnr1.png"
-    image_path = os.path.join(os.getcwd(), "images", "bnr1.png")
-
-    # Initialize sidebar
-    sidebar = st.sidebar
-
-    # Load and display the image
-    image = Image.open(image_path)
-    st.sidebar.image(image, use_column_width="auto", clamp=True, channels="RGB", output_format="png")
-
-    # Instruction text
-    st.sidebar.markdown("""
-        <div style="text-align: center;">
-            <div class="big-font -text center-text" style="color: ForestGreen; font-size: 24px;">Generate a Story</div>
-        </div>
-        <ul>
-            <li>Type an <strong><span style="color: cornflowerblue;">English word</span></strong> into the <strong><span style="color: Ivory;">Search for a word</span></strong> field and press <strong><span style="color: Ivory;">Return</span></strong>.</li>
-            <li>Select a <strong><span style="color: crimson;">Mi'kmaq word</span></strong> from the <strong><span style="color: Ivory;">Similar words</span></strong> dropdown list.</li>
-            <li>Click <strong><span style="color: Ivory;">Generate Story</span></strong> and an audio and visual story will be created.</li>
-        </ul>
-    """, unsafe_allow_html=True)
-
-    search_word = st.sidebar.text_input("Search for a word", value="")
-
-    # Center the image using Streamlit's layout feature
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.image(image, width=None, clamp=True, channels="RGB", output_format="PNG")
-
-    # Instruction text
-    st.markdown("""
-        <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
-            <div class="big-font">
-                <span style="font-weight:bold; font-size:24px; color:CornflowerBlue;">Storyteller</span>
-                <span style="color:white;">:</span>
-                <span style="font-size:24px; color:crimson;">A'tugwewinu</span>
-            </div>
-            <ul style="text-align: left;">
-                <li>Mi'kmaq storytelling plays a role in preserving the Mi'kmaq language.</li>
-                <li>Storytelling is a vital aspect of the Mi'kmaq people's culture and tradition.</li>
-                <li>It serves as a means to preserve and transmit knowledge, values, beliefs, and history from one generation to the next.</li>
-            </ul>
-        </div>
-    """, unsafe_allow_html=True)
-    st.divider()
-
-    # Initialize the variable selected_word
-    selected_word = None
-
-    # Load word data
-    if all_word_details is None:
-        st.sidebar.error("Failed to load word data.")
-        return
-
-    # Generate word list and transform data to DataFrame
-    word_list = list(all_word_details.keys())
-    df = pd.DataFrame([(key, value["translation"], value["meanings"], value["example"]) for key, value in all_word_details.items()],
-                        columns=["word", "translation", "meanings", "example"])
-
-    # Sort the DataFrame by 'word' column in ascending order
-    df = df.sort_values(by=['word'])
-
-    # Resetting the index
-    df = df.reset_index(drop=True)
-
-    similar_words = None
-    selected_word = ""
-    user_selected_word = ""
-
-    # Check if a search_word has been entered
-    if search_word:  
-        search_word_lower = search_word.lower()
-
-        # Find the exact match in the "translation" field where the searched word is the first word
-        exact_match_translation = df[df['translation'].apply(lambda translation: translation.lower().split()[0] == search_word_lower)]['word'].values
-
-        if len(exact_match_translation) > 0:
-            selected_word = exact_match_translation[0]
-        else:
-            # Find the word in the "meanings" field where the searched word is present
-            similar_words_meanings = df[df['meanings'].apply(lambda meanings: any(search_word_lower in meanings.lower().split() for meanings in meanings))]['word'].values
-            if len(similar_words_meanings) > 0:
-                selected_word = similar_words_meanings[0]
-
-        if not selected_word:
-            st.sidebar.write("No similar word found.")
-        
-        if selected_word:
-            # Get index of the selected word in dataframe
-            selected_word_index = df.index[df['word'] == selected_word].tolist()[0]
-
-            # Get next 19 words after the selected word
-            next_words = df.iloc[selected_word_index+1 : selected_word_index+20]['word'].values
-
-            # Combine the selected word with next 19 words
-            combined_words = np.concatenate(([selected_word], next_words))
-
-            user_selected_word = st.sidebar.selectbox("Similar words:", combined_words)
-
-    # Display word details in sidebar
-    if selected_word:
-        display_word_details_main(selected_word, all_word_details, tts_settings, sidebar)
-
-        # TTS service selection in the sidebar
-        tts_service = sidebar.selectbox("Select a TTS service", ['gtts'], key="tts_service_selectbox", index=0)
-        tts_settings["tts_audio"] = tts_service if tts_service else 'gtts'
-
-        # Display selected word below submit button
-        st.sidebar.markdown(f"Selected word: **{selected_word}**")
-        
-        # Submit button in the sidebar
-        submit_button = sidebar.button(
-            f"Generate Story about **{selected_word}**",
-            help="Click to generate the story",
-            key="submit_button",
-            args=(selected_word, all_word_details, tts_service),
-            kwargs={"generate_images": selected_word == "Submit with Images"},
-            type="primary"
-        )
-
-        # Generate and display story, audio, and images
-        if submit_button:
-            st.info("Generating the story... This may take a minute. It's worth the wait!")  # <--- Display info message
-            jsonl_file = "mikmaq_semantic.jsonl"
-            themes = load_theme_and_story(jsonl_file)
-            word_details = get_user_inputs(selected_word, all_word_details)
-            if word_details is not None:
-                meaning = word_details.get('meanings', [])[0] if word_details.get('meanings') else ""
-                theme, story_word, image_theme = get_theme_and_story_word(themes, selected_word, meaning)
-                story_text, _, _ = generate_story(word_details, theme, story_word, image_theme)
-
-                try:
-                    audio = generate_audio(story_text, tts_service)
-                    display_story_and_audio(story_text, audio)
-                except Exception as e:
-                    st.error(f"An error occurred: {e}")
-
-                generate_and_display_images(story_text, image_theme)
-                st.empty()  # <--- Removes info message
-
-
 @st.cache_data
 def get_tts_service(tts_settings: dict) -> str:
     """
@@ -766,6 +610,159 @@ def display_word_details_main(selected_word: str, all_word_details: dict, tts_se
         sidebar.audio(audio_bytes, format='audio/wav')  # changed to sidebar
         os.remove(audio)  # Delete the temporary audio file after playing
 
+
+def main_application(global_vars: dict) -> None:
+    """
+    Main application function.
+
+    Args:
+        global_vars (dict): A dictionary containing all global variables.
+    """
+    all_word_details = global_vars['all_word_details']
+    tts_settings = global_vars['tts_settings']
+    
+    # Custom CSS for the image and title
+    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+    
+    similar_words = None
+    selected_word = ""
+    selected_word = ""
+
+    # Define file path for "bnr1.png"
+    image_path = os.path.join(os.getcwd(), "images", "bnr1.png")
+    image = Image.open(image_path)
+    # Center the image using Streamlit's layout feature
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.image(image, width=None, clamp=True, channels="RGB", output_format="PNG")
+
+    # Instruction text
+    st.markdown("""
+        <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+            <div class="big-font">
+                <span style="font-weight:bold; font-size:24px; color:CornflowerBlue;">Storyteller</span>
+                <span style="color:white;">:</span>
+                <span style="font-size:24px; color:crimson;">A'tugwewinu</span>
+            </div>
+            <ul style="text-align: left;">
+                <li>Mi'kmaq storytelling plays a role in preserving the Mi'kmaq language.</li>
+                <li>Storytelling is a vital aspect of the Mi'kmaq people's culture and tradition.</li>
+                <li>It serves as a means to preserve and transmit knowledge, values, beliefs, and history from one generation to the next.</li>
+            </ul>
+        </div>
+    """, unsafe_allow_html=True)
+    st.markdown("---")
+
+    # Initialize sidebar
+    sidebar = st.sidebar
+
+    # Load and display the image
+    st.sidebar.image(image, use_column_width="auto", clamp=True, channels="RGB", output_format="png")
+
+    # Instruction text
+    st.sidebar.markdown("""
+        <div style="text-align: center;">
+            <div class="big-font -text center-text" style="color: ForestGreen; font-size: 24px;">Generate a Story</div>
+        </div>
+        <ul>
+            <li>Type an <strong><span style="color: cornflowerblue;">English word</span></strong> into the <strong><span style="color: Ivory;">Search for a word</span></strong> field and press <strong><span style="color: Ivory;">Return</span></strong>.</li>
+            <li>Select a <strong><span style="color: crimson;">Mi'kmaq word</span></strong> from the <strong><span style="color: Ivory;">Similar words</span></strong> dropdown list.</li>
+            <li>Click <strong><span style="color: Ivory;">Generate Story</span></strong> and an audio and visual story will be created.</li>
+        </ul>
+    """, unsafe_allow_html=True)
+
+    search_word = st.sidebar.text_input("Search for a word", value="")
+
+
+    # Initialize the variable selected_word
+    selected_word = None
+
+    # Load word data
+    if all_word_details is None:
+        st.sidebar.error("Failed to load word data.")
+        return
+
+    # Generate word list and transform data to DataFrame
+    word_list = list(all_word_details.keys())
+    df = pd.DataFrame([(key, value["translation"], value["meanings"], value["example"]) for key, value in all_word_details.items()],
+                        columns=["word", "translation", "meanings", "example"])
+
+    # Sort the DataFrame by 'word' column in ascending order
+    df = df.sort_values(by=['word'])
+
+    # Resetting the index
+    df = df.reset_index(drop=True)
+
+    # Check if a search_word has been entered
+    if search_word:  
+        search_word_lower = search_word.lower()
+
+        # Find the exact match in the "translation" field where the searched word is the first word
+        exact_match_translation = df[df['translation'].apply(lambda translation: translation.lower().split()[0] == search_word_lower)]['word'].values
+
+        if len(exact_match_translation) > 0:
+            selected_word = exact_match_translation[0]
+        else:
+            # Find the word in the "meanings" field where the searched word is present
+            similar_words_meanings = df[df['meanings'].apply(lambda meanings: any(search_word_lower in meanings.lower().split() for meanings in meanings))]['word'].values
+            if len(similar_words_meanings) > 0:
+                selected_word = similar_words_meanings[0]
+
+        if not selected_word:
+            st.sidebar.write("No similar word found.")
+        
+        if selected_word:
+            # Get index of the selected word in dataframe
+            selected_word_index = df.index[df['word'] == selected_word].tolist()[0]
+
+            # Get next 19 words after the selected word
+            next_words = df.iloc[selected_word_index+1 : selected_word_index+20]['word'].values
+
+            # Combine the selected word with next 19 words
+            combined_words = np.concatenate(([selected_word], next_words))
+
+            selected_word = st.sidebar.selectbox("Similar words:", combined_words)
+
+    # Display word details in sidebar
+    if selected_word:
+        display_word_details_main(selected_word, all_word_details, tts_settings, sidebar)
+
+        # TTS service selection in the sidebar
+        tts_service = sidebar.selectbox("Select a TTS service", ['gtts'], key="tts_service_selectbox", index=0)
+        tts_settings["tts_audio"] = tts_service if tts_service else 'gtts'
+
+        # Display selected word below submit button
+        st.sidebar.markdown(f"Selected word: **{selected_word}**")
+        
+        # Submit button in the sidebar
+        submit_button = sidebar.button(
+            f"Generate Story about **{selected_word}**",
+            help="Click to generate the story",
+            key="submit_button",
+            args=(selected_word, all_word_details, tts_service),
+            kwargs={"generate_images": selected_word == "Submit with Images"},
+            type="primary"
+        )
+
+        # Generate and display story, audio, and images
+        if submit_button:
+            st.info("Generating the story... This may take a minute. It's worth the wait!")  # <--- Display info message
+            jsonl_file = "mikmaq_semantic.jsonl"
+            themes = load_theme_and_story(jsonl_file)
+            word_details = get_user_inputs(selected_word, all_word_details)
+            if word_details is not None:
+                meaning = word_details.get('meanings', [])[0] if word_details.get('meanings') else ""
+                theme, story_word, image_theme = get_theme_and_story_word(themes, selected_word, meaning)
+                story_text, _, _ = generate_story(word_details, theme, story_word, image_theme)
+
+                try:
+                    audio = generate_audio(story_text, tts_service)
+                    display_story_and_audio(story_text, audio)
+                except Exception as e:
+                    st.error(f"An error occurred: {e}")
+
+                generate_and_display_images(story_text, image_theme)
+                st.empty()  # <--- Removes info message
 
 def main():
     """
