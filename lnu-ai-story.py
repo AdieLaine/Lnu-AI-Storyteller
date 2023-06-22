@@ -274,7 +274,7 @@ def generate_openai_images(prompt, role="DALL-E", context="In the creative and v
     """
     try:
         full_prompt = f"{context} {prompt}"
-        truncated_prompt = full_prompt[:300]
+        truncated_prompt = full_prompt[:500]
         prompt_settings = {
             "model": "image-alpha-001",
             "prompt": truncated_prompt,
@@ -330,7 +330,7 @@ def enhance_with_gpt(prompt, final_reply, models):
         response = openai.ChatCompletion.create(
             model=model_name,
             messages=gpt_messages,
-            max_tokens=1200,  
+            max_tokens=2500,  
             temperature=0.5, 
             top_p=1.0,
             frequency_penalty=0.5,

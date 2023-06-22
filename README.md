@@ -1,5 +1,6 @@
-# <span style="color: Crimson;">Lnu-AI</span>: An Indigenous AI System 🪶
-[![GitHub License](https://img.shields.io/github/license/AdieLaine/lnu-ai)](https://github.com/AdieLaine/lnu-ai/blob/main/LICENSE)
+# <span style="color: Crimson;">Lnu-AI</span>: Storyteller 🪶
+
+[![GitHub License](https://img.shields.io/github/license/AdieLaine/lnu-ai-storyteller)](https://github.com/AdieLaine/lnu-ai-storyteller/blob/main/LICENSE)
 <p align="center">
   <img src="./images/word-lines.png"/>
 </p>
@@ -7,7 +8,23 @@ Lnu-AI is an Artificial Intelligence system developed to serve as a bridge betwe
 
 ---
 
+<p align="center">
+  <img src="./images/story.png" width = none/>
+</p>
 
+<p align="center" style="font-size: larger; color: white;">
+  You can enjoy the <span style="color: crimson;">Storyteller</span> feature by clicking the link below.
+</p>
+
+
+<p align="center">
+  <a href="https://lnu-ai-storyteller.streamlit.app/">
+    <img src="https://static.streamlit.io/badges/streamlit_badge_black_white.svg" alt="Streamlit App" height="50">
+  </a>
+</p>
+
+
+---
 
 ## <span style="color: white;">Table of Contents</span>
 - [Project Statement](docs/projectstatement.md)
