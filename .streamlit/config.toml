@@ -1,6 +1,2 @@
-[server]
-headless = false
-port = 8501
-
 [theme]
 base = "dark"
