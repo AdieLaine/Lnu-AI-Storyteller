@@ -569,46 +569,7 @@ def get_user_inputs(selected_word: str, all_word_details: dict) -> Optional[Dict
     return all_word_details[selected_word]
 
 
-def display_word_details_main(selected_word: str, all_word_details: dict, tts_settings: dict, sidebar) -> None:
-    """
-    Function to display the details of a selected word.
 
-    Args:
-        selected_word (str): The word selected by the user.
-        all_word_details (dict): Dictionary of all word details.
-        tts_settings (dict): Text-to-Speech settings.
-        sidebar (Streamlit Sidebar): The sidebar object for output.
-    """
-    word_detail = get_user_inputs(selected_word, all_word_details)
-    if word_detail is None:
-        return
-
-    # Display word details
-    sidebar.markdown(f"<h3 style='color: crimson;'><span style='font-size: 28px; font-weight: bold;'>{selected_word}</span></h3>", unsafe_allow_html=True)  # changed to sidebar
-    sidebar.markdown(f"<div style='color:CornflowerBlue'>Pronunciation guide: {word_detail.get('pronunciation', '')}</div>", unsafe_allow_html=True)  # changed to sidebar
-    sidebar.markdown(f"Part of speech: {word_detail.get('part_of_speech', '')}")  # changed to sidebar
-    
-    # Display meanings
-    meanings = word_detail.get('meanings', [])
-    sidebar.markdown("Meanings:")  # changed to sidebar
-    for meanings in meanings:
-        sidebar.markdown(f"- {meanings}")  # changed to sidebar
-
-    # Display example sentences
-    example_sentences = word_detail.get('example', [])
-    sidebar.markdown("Example of word used in sentence:")  # changed to sidebar
-    for example_sentence in example_sentences:
-        sidebar.markdown(f"- {example_sentence}")  # changed to sidebar
-
-    # Display pronunciation
-    sidebar.markdown("Listen to pronunciation:")  # changed to sidebar
-    tts_service = tts_settings.get('tts_audio', 'gtts')
-    audio = generate_audio(selected_word, tts_service)
-    if os.path.isfile(audio):
-        audio_file = open(audio, 'rb')
-        audio_bytes = audio_file.read()
-        sidebar.audio(audio_bytes, format='audio/wav')  # changed to sidebar
-        os.remove(audio)  # Delete the temporary audio file after playing
 
 
 def main_application(global_vars: dict) -> None:
@@ -732,8 +693,7 @@ def main_application(global_vars: dict) -> None:
         tts_service = 'gtts'  # default TTS service
         # Display TTS service in sidebar
 
-        # Display selected word below submit button
-        st.sidebar.markdown(f"Selected word: **{selected_word}**")
+
 
         
         # Submit button in the sidebar
@@ -767,6 +727,49 @@ def main_application(global_vars: dict) -> None:
 
                 generate_and_display_images(story_text, image_theme)
                 st.empty()  # <--- Removes info message
+
+def display_word_details_main(selected_word: str, all_word_details: dict, tts_settings: dict, sidebar) -> None:
+    """
+    Function to display the details of a selected word.
+
+    Args:
+        selected_word (str): The word selected by the user.
+        all_word_details (dict): Dictionary of all word details.
+        tts_settings (dict): Text-to-Speech settings.
+        sidebar (Streamlit Sidebar): The sidebar object for output.
+    """
+    word_detail = get_user_inputs(selected_word, all_word_details)
+    if word_detail is None:
+        return
+
+    # Display word details
+    sidebar.markdown(f"<h3 style='color: crimson;'><span style='font-size: 28px; font-weight: bold;'>{selected_word}</span></h3>", unsafe_allow_html=True)  # changed to sidebar
+    sidebar.markdown(f"<div style='color:CornflowerBlue'>Pronunciation guide: {word_detail.get('pronunciation', '')}</div>", unsafe_allow_html=True)  # changed to sidebar
+    sidebar.markdown(f"Part of speech: {word_detail.get('part_of_speech', '')}")  # changed to sidebar
+    
+    # Display meanings
+    meanings = word_detail.get('meanings', [])
+    sidebar.markdown("Meanings:")  # changed to sidebar
+    for meanings in meanings:
+        sidebar.markdown(f"- {meanings}")  # changed to sidebar
+
+    # Display example sentences
+    example_sentences = word_detail.get('example', [])
+    sidebar.markdown("Example of word used in sentence:")  # changed to sidebar
+    for example_sentence in example_sentences:
+        sidebar.markdown(f"- {example_sentence}")  # changed to sidebar
+
+    # Display selected word below submit button
+    st.sidebar.markdown(f"Selected word: **{selected_word}**")
+    # Display pronunciation
+    sidebar.markdown("Listen to pronunciation:")  # changed to sidebar
+    tts_service = tts_settings.get('tts_audio', 'gtts')
+    audio = generate_audio(selected_word, tts_service)
+    if os.path.isfile(audio):
+        audio_file = open(audio, 'rb')
+        audio_bytes = audio_file.read()
+        sidebar.audio(audio_bytes, format='audio/wav')  # changed to sidebar
+        os.remove(audio)  # Delete the temporary audio file after playing
 
 def main():
     """
