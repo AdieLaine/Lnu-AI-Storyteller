@@ -73,7 +73,7 @@ st.set_page_config(
     page_title="Lnu-AI - An Indigenous AI System",
     page_icon="🪶",
     layout="centered",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="auto",
     menu_items={
         'Get Help': 'https://github.com/AdieLaine/lnu-ai',
         'Report a bug': 'https://github.com/AdieLaine/lnu-ai/issues',
@@ -558,6 +558,18 @@ def generate_and_display_images(story_text: str, image_theme: str) -> None:
         else:
             image_container.markdown("**Image generation failed.**") # image_container used directly
 
+def render_menu(options: list) -> str:
+    """
+    Renders the menu with options.
+
+    Args:
+        options (list): A list of options to be displayed in the menu.
+
+    Returns:
+        str: The selected option from the menu.
+    """
+    icons = ["book", "chat", "puzzle fill", "archive"]
+    return option_menu(None, options, icons=icons, menu_icon="cast", default_index=0, orientation="horizontal")
 
 def get_user_inputs(selected_word: str, all_word_details: dict) -> Optional[Dict]:
     """
@@ -809,18 +821,7 @@ def main():
 
 
 
-def render_menu(options: list) -> str:
-    """
-    Renders the menu with options.
 
-    Args:
-        options (list): A list of options to be displayed in the menu.
-
-    Returns:
-        str: The selected option from the menu.
-    """
-    icons = ["book", "chat", "puzzle fill", "archive"]
-    return option_menu(None, options, icons=icons, menu_icon="cast", default_index=0, orientation="horizontal")
 
 
 
