@@ -632,7 +632,7 @@ def main_application(global_vars: dict) -> None:
     image_path = os.path.join(os.getcwd(), "images", "bnr1.png")
     image = Image.open(image_path)
     # Center the image using Streamlit's layout feature
-    st.image(image, use_column_width="auto" , clamp=True, channels="RGB", output_format="PNG")
+    st.image(image, use_column_width="always" , clamp=True, channels="RGB", output_format="PNG")
 
     # Instruction text
     st.markdown("""
@@ -659,7 +659,7 @@ def main_application(global_vars: dict) -> None:
     tts_settings["tts_audio"] = 'gtts'
 
     # Load and display the image
-    st.sidebar.image(image, use_column_width="auto", clamp=True, channels="RGB", output_format="png")
+    st.sidebar.image(image, use_column_width="always", clamp=True, channels="RGB", output_format="png")
 
     # Instruction text
     st.sidebar.markdown("""
@@ -731,7 +731,7 @@ def main_application(global_vars: dict) -> None:
 
         tts_service = 'gtts'  # default TTS service
         # Display TTS service in sidebar
-        sidebar.markdown(f"Text-to-Speech service: **{tts_service}**")
+
         # Display selected word below submit button
         st.sidebar.markdown(f"Selected word: **{selected_word}**")
 
@@ -745,6 +745,8 @@ def main_application(global_vars: dict) -> None:
             kwargs={"generate_images": selected_word == "Submit with Images"},
             type="primary"
         )
+
+        sidebar.markdown(f"Text-to-Speech service: **{tts_service}**")
 
         # Generate and display story, audio, and images
         if submit_button:
