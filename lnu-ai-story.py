@@ -95,14 +95,7 @@ st.set_page_config(
     }
 )
 
-def render_ui(CUSTOM_CSS):
-    """
-    Renders the user interface components.
-    """
-    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
-    st.markdown('<h1 style="text-align: center; color: Crimson; margin-top: -70px;">Lnu-AI</h1>', unsafe_allow_html=True)
-    st.markdown('<h3 style="text-align: center;">An Indigenous AI System</h3>', unsafe_allow_html=True)
-    st.markdown("---")
+
 
 @st.cache_data
 def load_all_word_details(file):
@@ -819,7 +812,14 @@ def main():
 
 
 
-
+def render_ui(CUSTOM_CSS):
+    """
+    Renders the user interface components.
+    """
+    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+    st.markdown('<h1 style="text-align: center; color: Crimson; margin-top: -70px;">Lnu-AI</h1>', unsafe_allow_html=True)
+    st.markdown('<h3 style="text-align: center;">An Indigenous AI System</h3>', unsafe_allow_html=True)
+    st.markdown("---")
 
 
 
