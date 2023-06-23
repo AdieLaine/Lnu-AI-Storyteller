@@ -73,7 +73,7 @@ st.set_page_config(
     page_title="Lnu-AI - An Indigenous AI System",
     page_icon="🪶",
     layout="centered",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
     menu_items={
         'Get Help': 'https://github.com/AdieLaine/lnu-ai',
         'Report a bug': 'https://github.com/AdieLaine/lnu-ai/issues',
