@@ -95,6 +95,14 @@ st.set_page_config(
     }
 )
 
+def render_ui(CUSTOM_CSS):
+    """
+    Renders the user interface components.
+    """
+    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+    st.markdown('<h1 style="text-align: center; color: Crimson; margin-top: -70px;">Lnu-AI</h1>', unsafe_allow_html=True)
+    st.markdown('<h3 style="text-align: center;">An Indigenous AI System</h3>', unsafe_allow_html=True)
+    st.markdown("---")
 
 @st.cache_data
 def load_all_word_details(file):
@@ -583,7 +591,7 @@ def main_application(global_vars: dict) -> None:
     tts_settings = global_vars['tts_settings']
     
     # Custom CSS for the image and title
-    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+    #st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
     
     similar_words = None
     selected_word = ""
@@ -798,14 +806,7 @@ def main():
         menu_options[selected_option]()
 
 
-def render_ui(CUSTOM_CSS):
-    """
-    Renders the user interface components.
-    """
-    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
-    st.markdown('<h1 style="text-align: center; color: Crimson; margin-top: -70px;">Lnu-AI</h1>', unsafe_allow_html=True)
-    st.markdown('<h3 style="text-align: center;">An Indigenous AI System</h3>', unsafe_allow_html=True)
-    st.divider()
+
 
 
 def render_menu(options: list) -> str:
@@ -820,6 +821,7 @@ def render_menu(options: list) -> str:
     """
     icons = ["book", "chat", "puzzle fill", "archive"]
     return option_menu(None, options, icons=icons, menu_icon="cast", default_index=0, orientation="horizontal")
+
 
 
 if __name__ == "__main__":
