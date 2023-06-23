@@ -729,9 +729,12 @@ def main_application(global_vars: dict) -> None:
     if selected_word:
         display_word_details_main(selected_word, all_word_details, tts_settings, sidebar)
 
-        tts_service = sidebar.selectbox("Select a TTS service", ['gtts'], key="tts_service_selectbox", index=0)
+        tts_service = 'gtts'  # default TTS service
+        # Display TTS service in sidebar
+        sidebar.markdown(f"Text-to-Speech service: **{tts_service}**")
         # Display selected word below submit button
         st.sidebar.markdown(f"Selected word: **{selected_word}**")
+
         
         # Submit button in the sidebar
         submit_button = sidebar.button(
