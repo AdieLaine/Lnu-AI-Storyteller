@@ -73,7 +73,7 @@ st.set_page_config(
     page_title="Lnu-AI - An Indigenous AI System",
     page_icon="🪶",
     layout="wide",
-    initial_sidebar_state="auto",
+    initial_sidebar_state="collapsed",
     menu_items={
         'Get Help': 'https://github.com/AdieLaine/lnu-ai',
         'Report a bug': 'https://github.com/AdieLaine/lnu-ai/issues',
@@ -628,7 +628,7 @@ def main_application(global_vars: dict) -> None:
     tts_settings["tts_audio"] = 'gtts'
 
     # Load and display the image
-    st.sidebar.image(image, use_column_width="always", clamp=True, channels="RGB", output_format="png")
+    st.sidebar.image(image, width=300, output_format="png")
 
     # Instruction text
     st.sidebar.markdown("""
