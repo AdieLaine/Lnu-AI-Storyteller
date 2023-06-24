@@ -219,7 +219,7 @@ def load_env_variables():
     }
 
     models = {
-        "chat_model": get_env_variable("CHAT_MODEL_SELECTION", default="gpt-4-0613"),
+        "chat_model": get_env_variable("CHAT_MODEL_SELECTION", default="gpt-3.5-turbo-16k-0613"),
         "fine_tuned_model_dictionary": get_env_variable("FINE_TUNED_MODEL_DICTIONARY"),
         "fine_tuned_model_data": get_env_variable("FINE_TUNED_MODEL_DATA"),
     }
@@ -274,7 +274,7 @@ def generate_openai_images(prompt, role="DALL-E", context="In the creative and v
     """
     try:
         full_prompt = f"{context} {prompt}"
-        truncated_prompt = full_prompt[:300]
+        truncated_prompt = full_prompt[:200]
         prompt_settings = {
             "model": "image-alpha-001",
             "prompt": truncated_prompt,
@@ -307,7 +307,7 @@ def generate_openai_images(prompt, role="DALL-E", context="In the creative and v
 
 
 @st.cache_resource(show_spinner=False)
-def enhance_with_gpt(prompt, final_reply, models):
+def enhance_with_gpt(prompt, final_reply, models, max_tokens=3500):
     """
     Enhances the reply with GPT model by sending the conversation for completion.
 
@@ -330,7 +330,7 @@ def enhance_with_gpt(prompt, final_reply, models):
         response = openai.ChatCompletion.create(
             model=model_name,
             messages=gpt_messages,
-            max_tokens=2500,  
+            max_tokens=max_tokens,  
             temperature=0.5, 
             top_p=1.0,
             frequency_penalty=0.5,
@@ -417,7 +417,7 @@ def replace_placeholders_in_theme(theme: Dict[str, str], word: str, meaning: str
 
 
 
-def generate_story(all_word_details: dict, theme: str, story_word: str, image_theme: str) -> Tuple[str, str, str]:
+def generate_story(all_word_details: dict, theme: str, story_word: str, image_theme: str, max_tokens=3000) -> Tuple[str, str, str]:
     """
     Function to generate a story using OpenAI's GPT-4 model. Interacts with the OpenAI API to create a conversation
     and uses the returned message content as the generated story.
@@ -457,7 +457,7 @@ def generate_story(all_word_details: dict, theme: str, story_word: str, image_th
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k-0613",
         messages=[prompt_system, initial_story],
-        max_tokens=2000,  # Maximum length of the generated text. Consider adjusting this for longer/shorter outputs.
+        max_tokens=max_tokens,  # Maximum length of the generated text. Consider adjusting this for longer/shorter outputs.
         temperature=0.5,  # Controls the randomness of the output. Higher values (closer to 1) make output more random.
         top_p=1.0,  # Controls the nucleus sampling. Lower values can make the output more focused.
         frequency_penalty=0.5,  # Controls penalizing new tokens based on their frequency.
