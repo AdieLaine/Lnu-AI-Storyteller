@@ -195,7 +195,7 @@ def replace_placeholders_in_theme(theme: Dict[str, str], word: str, meaning: str
 
 
 @st.cache_resource(show_spinner=False)
-def enhance_with_gpt(prompt, final_reply, models, max_token=2000):
+def enhance_with_gpt(prompt, final_reply, models, max_token=3000):
     """
     Enhances the reply with GPT model by sending the conversation for completion.
 
