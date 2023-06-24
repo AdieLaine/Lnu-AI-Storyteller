@@ -207,7 +207,7 @@ def enhance_with_gpt(prompt, final_reply, models, max_token=2000):
     Returns:
         str: Enhanced reply.
     """
-    model_name = models.get("chat_model", "gpt-4-0613")
+    model_name = models.get("chat_model", "gpt-3.5-turbo-0613")
     try:
         gpt_messages = [
             {"role": "system", "content": "You are Lnu-AI, an AI developed to promote and preserve the Mi'kmaq language and culture."},
@@ -309,7 +309,7 @@ def load_env_variables():
     }
 
     models = {
-        "chat_model": get_env_variable("CHAT_MODEL_SELECTION", default="gpt-4-0613"),
+        "chat_model": get_env_variable("CHAT_MODEL_SELECTION", default="gpt-3.5-turbo-0613"),
         "fine_tuned_model_dictionary": get_env_variable("FINE_TUNED_MODEL_DICTIONARY"),
         "fine_tuned_model_data": get_env_variable("FINE_TUNED_MODEL_DATA"),
     }
@@ -364,7 +364,7 @@ def generate_openai_images(prompt, role="DALL-E", context="In the creative and v
     """
     try:
         full_prompt = f"{context} {prompt}"
-        truncated_prompt = full_prompt[:200]
+        truncated_prompt = full_prompt[:100]
         prompt_settings = {
             "model": "image-alpha-001",
             "prompt": truncated_prompt,
@@ -684,7 +684,7 @@ def generate_story(all_word_details: dict, theme: str, story_word: str, image_th
     # Parameters like max_tokens, temperature, top_p, frequency_penalty, and presence_penalty can be tweaked
     # to adjust the output from the model.
     response = openai.ChatCompletion.create(
-        model="gpt-4-0613",
+        model="gpt-3.5-turbo-0613",
         messages=[prompt_system, initial_story],
         max_tokens=max_tokens,  # Maximum length of the generated text. Consider adjusting this for longer/shorter outputs.
         temperature=0.5,  # Controls the randomness of the output. Higher values (closer to 1) make output more random.
