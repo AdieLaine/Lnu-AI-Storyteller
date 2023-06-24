@@ -145,6 +145,96 @@ jsonl_file = "mikmaq_semantic.jsonl"
 
 themes = load_theme_and_story(jsonl_file)
 
+def get_theme_and_story_word(themes: Optional[List[Dict[str, str]]], selected_word: str, meaning: str) -> Tuple[str, str, str]:
+    """
+    Function to handle theme and story word selection.
+    """
+    if not themes:
+        raise ValueError("No themes provided.")
+
+    selected_theme = select_random_theme(themes)
+    return replace_placeholders_in_theme(selected_theme, selected_word, meaning)
+
+
+def select_random_theme(themes: List[Dict[str, str]]) -> Dict[str, str]:
+    """
+    Selects a random theme from the provided list.
+
+    Args:
+        themes (List[Dict[str, str]]): The list of themes to choose from.
+
+    Returns:
+        Dict[str, str]: The selected theme.
+    """
+    return random.choice(themes)
+
+
+def replace_placeholders_in_theme(theme: Dict[str, str], word: str, meaning: str) -> Tuple[str, str, str]:
+    """
+    Replaces placeholders in a theme with the provided word and meaning.
+
+    Args:
+        theme (Dict[str, str]): The theme.
+        word (str): The word to replace the '{word}' placeholder.
+        meaning (str): The meaning to replace the '{meaning}' placeholder.
+
+    Returns:
+        Tuple[str, str, str]: A tuple containing the theme, story word, and image theme.
+
+    Raises:
+        KeyError: If a required key is missing from the theme.
+    """
+    try:
+        theme_text = theme['theme'].replace('{word}', word).replace('{meaning}', meaning)
+        story_word = theme['story_word']
+        image_theme = theme['image_theme'].replace('{word}', word).replace('{meaning}', meaning)
+    except KeyError as e:
+        raise KeyError(f"Required key missing from theme: {str(e)}")
+
+    return theme_text, story_word, image_theme
+
+
+@st.cache_resource(show_spinner=False)
+def enhance_with_gpt(prompt, final_reply, models, max_token=2000):
+    """
+    Enhances the reply with GPT model by sending the conversation for completion.
+
+    Args:
+        prompt (str): User's message.
+        final_reply (str): Assistant's reply.
+        models (dict): Dictionary of trained models.
+
+    Returns:
+        str: Enhanced reply.
+    """
+    model_name = models.get("chat_model", "gpt-4-0613")
+    try:
+        gpt_messages = [
+            {"role": "system", "content": "You are Lnu-AI, an AI developed to promote and preserve the Mi'kmaq language and culture."},
+            {"role": "user", "content": prompt},
+            {"role": "assistant", "content": final_reply}
+        ]
+    
+        response = openai.ChatCompletion.create(
+            model=model_name,
+            messages=gpt_messages,
+            max_tokens=max_token,  
+            temperature=0.5, 
+            top_p=1.0,
+            frequency_penalty=0.5,
+            presence_penalty=0.5,
+        )
+
+        # Extract reply from response
+        if 'choices' in response and len(response['choices']) > 0:
+            if 'message' in response['choices'][0] and 'content' in response['choices'][0]['message']:
+                gpt_reply = response['choices'][0]['message']['content']
+                return gpt_reply
+
+    except Exception as e:
+        print(f"Error with {model_name}: {e}")
+
+    return final_reply
 
 def get_env_variable(name, default=None):
     """
@@ -219,7 +309,7 @@ def load_env_variables():
     }
 
     models = {
-        "chat_model": get_env_variable("CHAT_MODEL_SELECTION", default="gpt-3.5-turbo-0613"),
+        "chat_model": get_env_variable("CHAT_MODEL_SELECTION", default="gpt-4-0613"),
         "fine_tuned_model_dictionary": get_env_variable("FINE_TUNED_MODEL_DICTIONARY"),
         "fine_tuned_model_data": get_env_variable("FINE_TUNED_MODEL_DATA"),
     }
@@ -306,229 +396,6 @@ def generate_openai_images(prompt, role="DALL-E", context="In the creative and v
         return None
 
 
-@st.cache_resource(show_spinner=False)
-def enhance_with_gpt(prompt, final_reply, models, max_tokens=2000):
-    """
-    Enhances the reply with GPT model by sending the conversation for completion.
-
-    Args:
-        prompt (str): User's message.
-        final_reply (str): Assistant's reply.
-        models (dict): Dictionary of trained models.
-
-    Returns:
-        str: Enhanced reply.
-    """
-    model_name = models.get("chat_model", "gpt-3.5-turbo-0613")
-    try:
-        gpt_messages = [
-            {"role": "system", "content": "You are Lnu-AI, an AI developed to promote and preserve the Mi'kmaq language and culture."},
-            {"role": "user", "content": prompt},
-            {"role": "assistant", "content": final_reply}
-        ]
-    
-        response = openai.ChatCompletion.create(
-            model=model_name,
-            messages=gpt_messages,
-            max_tokens=max_tokens,  
-            temperature=0.5, 
-            top_p=1.0,
-            frequency_penalty=0.5,
-            presence_penalty=0.5,
-        )
-
-        # Extract reply from response
-        if 'choices' in response and len(response['choices']) > 0:
-            if 'message' in response['choices'][0] and 'content' in response['choices'][0]['message']:
-                gpt_reply = response['choices'][0]['message']['content']
-                return gpt_reply
-
-    except Exception as e:
-        print(f"Error with {model_name}: {e}")
-
-    return final_reply
-
-
-@st.cache_data
-def get_tts_service(tts_settings: dict) -> str:
-    """
-    Function to determine the appropriate Text-to-Speech service based on the settings.
-
-    Args:
-        tts_settings (dict): Text-to-Speech settings.
-
-    Returns:
-        str: Name of the Text-to-Speech service.
-    """
-    tts_service = next((service for service, flag in tts_settings.items() if flag.lower() == 'yes'), 'gtts')
-    return tts_service
-
-
-
-def get_theme_and_story_word(themes: Optional[List[Dict[str, str]]], selected_word: str, meaning: str) -> Tuple[str, str, str]:
-    """
-    Function to handle theme and story word selection.
-    """
-    if not themes:
-        raise ValueError("No themes provided.")
-
-    selected_theme = select_random_theme(themes)
-    return replace_placeholders_in_theme(selected_theme, selected_word, meaning)
-
-
-
-def select_random_theme(themes: List[Dict[str, str]]) -> Dict[str, str]:
-    """
-    Selects a random theme from the provided list.
-
-    Args:
-        themes (List[Dict[str, str]]): The list of themes to choose from.
-
-    Returns:
-        Dict[str, str]: The selected theme.
-    """
-    return random.choice(themes)
-
-
-
-def replace_placeholders_in_theme(theme: Dict[str, str], word: str, meaning: str) -> Tuple[str, str, str]:
-    """
-    Replaces placeholders in a theme with the provided word and meaning.
-
-    Args:
-        theme (Dict[str, str]): The theme.
-        word (str): The word to replace the '{word}' placeholder.
-        meaning (str): The meaning to replace the '{meaning}' placeholder.
-
-    Returns:
-        Tuple[str, str, str]: A tuple containing the theme, story word, and image theme.
-
-    Raises:
-        KeyError: If a required key is missing from the theme.
-    """
-    try:
-        theme_text = theme['theme'].replace('{word}', word).replace('{meaning}', meaning)
-        story_word = theme['story_word']
-        image_theme = theme['image_theme'].replace('{word}', word).replace('{meaning}', meaning)
-    except KeyError as e:
-        raise KeyError(f"Required key missing from theme: {str(e)}")
-
-    return theme_text, story_word, image_theme
-
-
-
-def generate_story(all_word_details: dict, theme: str, story_word: str, image_theme: str, max_tokens=1000) -> Tuple[str, str, str]:
-    """
-    Function to generate a story using OpenAI's GPT-4 model. Interacts with the OpenAI API to create a conversation
-    and uses the returned message content as the generated story.
-
-    Args:
-        all_word_details (dict): Dictionary of all word details.
-        theme (str): The theme for the story.
-        story_word (str): The main word for the story.
-        image_theme (str): The theme for the image.
-
-    Returns:
-        str: The generated story text.
-        str: The main word for the story.
-        str: The theme for the image.
-    """
-
-    # The model used for generating the story is retrieved from environment variables.
-    # If there is no such variable defined, use "gpt-4-0613" as the default model.
-    # You may want to replace this with a different model name if a new version is available.
-    
-
-    # Define the system's role and content. The system plays the role of a Mi'kmaq storyteller.
-    prompt_system = {
-        'role': 'system',
-        'content': "You are a Mi'kmaq storyteller, or an 'a'tugwewinu', skilled in weaving captivating tales about the Mi'kmaq people and their rich cultural heritage."
-    }
-
-    # Define the initial part of the story as an 'Assistant' message.
-    initial_story = {
-        'role': 'assistant',
-        'content': f"Let us embark on a journey with a theme of '{theme}', centered around the word '{story_word}'."
-    }
-
-    # Create a conversation with OpenAI's Chat models.
-    # Parameters like max_tokens, temperature, top_p, frequency_penalty, and presence_penalty can be tweaked
-    # to adjust the output from the model.
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-0613",
-        messages=[prompt_system, initial_story],
-        max_tokens=max_tokens,  # Maximum length of the generated text. Consider adjusting this for longer/shorter outputs.
-        temperature=0.5,  # Controls the randomness of the output. Higher values (closer to 1) make output more random.
-        top_p=1.0,  # Controls the nucleus sampling. Lower values can make the output more focused.
-        frequency_penalty=0.5,  # Controls penalizing new tokens based on their frequency.
-        presence_penalty=0.5,  # Controls penalizing new tokens based on their presence.
-    )
-
-    # This is the generated story text.
-    story_text = response['choices'][0]['message']['content']
-
-    # Return the generated story, story word, and image theme.
-    return story_text, story_word, image_theme
-
-
-def process_story_generation(selected_word: str, all_word_details: dict, generate_images: bool, tts_settings: dict) -> None:
-    """
-    Function to generate and display a story, its audio, and images.
-
-    Args:
-        selected_word (str): The selected word for the story.
-        all_word_details (dict): Dictionary of all word details.
-        generate_images (bool): Flag to decide if images need to be generated.
-        tts_settings (dict): Text-to-Speech settings.
-    """
-    if not selected_word:
-        st.info("Please enter a word for the story")
-        return
-
-    with st.spinner("Generating story..."):
-        try:
-            word_detail = all_word_details[selected_word]
-            meaning = word_detail.get('meanings', [])[0]  # get the first meaning
-            themes = load_theme_and_story("mikmaq_semantic.jsonl")
-            theme, story_word, image_theme = get_theme_and_story_word(themes, selected_word, meaning)
-            story_text, _, _ = generate_story(selected_word, theme, story_word, image_theme)
-
-            tts_service = get_tts_service(tts_settings)
-            audio = generate_audio(story_text, tts_service)
-            display_story_and_audio(story_text, audio)
-
-            st.success("Story generation completed!")
-        except Exception as e:
-            st.error(f"Error in generating story or audio: {str(e)}")
-
-    if generate_images:
-        generate_and_display_images(story_text, image_theme)
-
-
-def display_story_and_audio(story_text: str, audio: Optional[str]) -> None:
-    """
-    Function to display the story text and its audio.
-
-    Args:
-        story_text (str): The generated story text.
-        audio (Optional[str]): Path to the audio file.
-    """
-    story_container = st.container()
-    with story_container:
-        st.markdown(
-            f"<div style='background-color: #2f4f4f; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);'>"
-            f"<p style='font-size: 18px; font-weight: bold; margin-bottom: 10px;'>Story text:</p>"
-            f"<p style='font-size: 16px; line-height: 1.5;'>{story_text}</p>"
-            "</div>",
-            unsafe_allow_html=True
-        )
-        if audio is not None and os.path.isfile(audio):
-            with open(audio, 'rb') as audio_file:
-                audio_bytes = audio_file.read()
-            st.audio(audio_bytes, format='audio/wav')
-            os.remove(audio)  # Delete the temporary audio file after playing
-
-
 def generate_and_display_images(story_text: str, image_theme: str) -> None:
     """
     Function to generate and display images for different parts of the story.
@@ -551,39 +418,19 @@ def generate_and_display_images(story_text: str, image_theme: str) -> None:
         else:
             image_container.markdown("**Image generation failed.**") # image_container used directly
 
-def render_menu(options: list) -> str:
+@st.cache_data
+def get_tts_service(tts_settings: dict) -> str:
     """
-    Renders the menu with options.
+    Function to determine the appropriate Text-to-Speech service based on the settings.
 
     Args:
-        options (list): A list of options to be displayed in the menu.
+        tts_settings (dict): Text-to-Speech settings.
 
     Returns:
-        str: The selected option from the menu.
+        str: Name of the Text-to-Speech service.
     """
-    icons = ["book", "chat", "puzzle fill", "archive"]
-    return option_menu(None, options, icons=icons, menu_icon="cast", default_index=0, orientation="horizontal")
-
-def get_user_inputs(selected_word: str, all_word_details: dict) -> Optional[Dict]:
-    """
-    Function to validate and return word details based on user inputs.
-    
-    Args:
-        selected_word (str): The word selected by the user.
-        all_word_details (dict): Dictionary of all word details.
-        
-    Returns:
-        Optional[Dict]: Details of the selected word, None if not present.
-    """
-    # Check if selected_word is in all_word_details
-    if selected_word not in all_word_details:
-        st.error(f"The word {selected_word} does not exist in the dictionary.")
-        return None
-    return all_word_details[selected_word]
-
-
-
-
+    tts_service = next((service for service, flag in tts_settings.items() if flag.lower() == 'yes'), 'gtts')
+    return tts_service
 
 def main_application(global_vars: dict) -> None:
     """
@@ -706,9 +553,6 @@ def main_application(global_vars: dict) -> None:
         tts_service = 'gtts'  # default TTS service
         # Display TTS service in sidebar
 
-
-
-        
         # Submit button in the sidebar
         submit_button = sidebar.button(
             f"Generate Story about **{selected_word}**",
@@ -740,6 +584,24 @@ def main_application(global_vars: dict) -> None:
 
                 generate_and_display_images(story_text, image_theme)
                 st.empty()  # <--- Removes info message
+
+def get_user_inputs(selected_word: str, all_word_details: dict) -> Optional[Dict]:
+    """
+    Function to validate and return word details based on user inputs.
+    
+    Args:
+        selected_word (str): The word selected by the user.
+        all_word_details (dict): Dictionary of all word details.
+        
+    Returns:
+        Optional[Dict]: Details of the selected word, None if not present.
+    """
+    # Check if selected_word is in all_word_details
+    if selected_word not in all_word_details:
+        st.error(f"The word {selected_word} does not exist in the dictionary.")
+        return None
+    return all_word_details[selected_word]
+
 
 def display_word_details_main(selected_word: str, all_word_details: dict, tts_settings: dict, sidebar) -> None:
     """
@@ -784,6 +646,120 @@ def display_word_details_main(selected_word: str, all_word_details: dict, tts_se
         sidebar.audio(audio_bytes, format='audio/wav')  # changed to sidebar
         os.remove(audio)  # Delete the temporary audio file after playing
 
+def generate_story(all_word_details: dict, theme: str, story_word: str, image_theme: str, max_tokens=1500) -> Tuple[str, str, str]:
+    """
+    Function to generate a story using OpenAI's GPT-4 model. Interacts with the OpenAI API to create a conversation
+    and uses the returned message content as the generated story.
+
+    Args:
+        all_word_details (dict): Dictionary of all word details.
+        theme (str): The theme for the story.
+        story_word (str): The main word for the story.
+        image_theme (str): The theme for the image.
+
+    Returns:
+        str: The generated story text.
+        str: The main word for the story.
+        str: The theme for the image.
+    """
+
+    # The model used for generating the story is retrieved from environment variables.
+    # If there is no such variable defined, use "gpt-4-0613" as the default model.
+    # You may want to replace this with a different model name if a new version is available.
+    
+
+    # Define the system's role and content. The system plays the role of a Mi'kmaq storyteller.
+    prompt_system = {
+        'role': 'system',
+        'content': "You are a Mi'kmaq storyteller, or an 'a'tugwewinu', skilled in weaving captivating tales about the Mi'kmaq people and their rich cultural heritage."
+    }
+
+    # Define the initial part of the story as an 'Assistant' message.
+    initial_story = {
+        'role': 'assistant',
+        'content': f"Let us embark on a journey with a theme of '{theme}', centered around the word '{story_word}'."
+    }
+
+    # Create a conversation with OpenAI's Chat models.
+    # Parameters like max_tokens, temperature, top_p, frequency_penalty, and presence_penalty can be tweaked
+    # to adjust the output from the model.
+    response = openai.ChatCompletion.create(
+        model="gpt-4-0613",
+        messages=[prompt_system, initial_story],
+        max_tokens=max_tokens,  # Maximum length of the generated text. Consider adjusting this for longer/shorter outputs.
+        temperature=0.5,  # Controls the randomness of the output. Higher values (closer to 1) make output more random.
+        top_p=1.0,  # Controls the nucleus sampling. Lower values can make the output more focused.
+        frequency_penalty=0.5,  # Controls penalizing new tokens based on their frequency.
+        presence_penalty=0.5,  # Controls penalizing new tokens based on their presence.
+    )
+
+    # This is the generated story text.
+    story_text = response['choices'][0]['message']['content']
+
+    # Return the generated story, story word, and image theme.
+    return story_text, story_word, image_theme
+
+
+def process_story_generation(selected_word: str, all_word_details: dict, generate_images: bool, tts_settings: dict) -> None:
+    """
+    Function to generate and display a story, its audio, and images.
+
+    Args:
+        selected_word (str): The selected word for the story.
+        all_word_details (dict): Dictionary of all word details.
+        generate_images (bool): Flag to decide if images need to be generated.
+        tts_settings (dict): Text-to-Speech settings.
+    """
+    if not selected_word:
+        st.info("Please enter a word for the story")
+        return
+
+    with st.spinner("Generating story..."):
+        try:
+            word_detail = all_word_details[selected_word]
+            meaning = word_detail.get('meanings', [])[0]  # get the first meaning
+            themes = load_theme_and_story("mikmaq_semantic.jsonl")
+            theme, story_word, image_theme = get_theme_and_story_word(themes, selected_word, meaning)
+            story_text, _, _ = generate_story(selected_word, theme, story_word, image_theme)
+
+            tts_service = get_tts_service(tts_settings)
+            audio = generate_audio(story_text, tts_service)
+            display_story_and_audio(story_text, audio)
+
+            st.success("Story generation completed!")
+        except Exception as e:
+            st.error(f"Error in generating story or audio: {str(e)}")
+
+    if generate_images:
+        generate_and_display_images(story_text, image_theme)
+
+
+def display_story_and_audio(story_text: str, audio: Optional[str]) -> None:
+    """
+    Function to display the story text and its audio.
+
+    Args:
+        story_text (str): The generated story text.
+        audio (Optional[str]): Path to the audio file.
+    """
+    story_container = st.container()
+    with story_container:
+        st.markdown(
+            f"<div style='background-color: #2f4f4f; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);'>"
+            f"<p style='font-size: 18px; font-weight: bold; margin-bottom: 10px;'>Story text:</p>"
+            f"<p style='font-size: 16px; line-height: 1.5;'>{story_text}</p>"
+            "</div>",
+            unsafe_allow_html=True
+        )
+        if audio is not None and os.path.isfile(audio):
+            with open(audio, 'rb') as audio_file:
+                audio_bytes = audio_file.read()
+            st.audio(audio_bytes, format='audio/wav')
+            os.remove(audio)  # Delete the temporary audio file after playing
+
+
+
+
 def main():
     """
     The main function of the application.
@@ -798,7 +774,6 @@ def main():
 
     all_word_details = global_vars['all_word_details']
 
-    
     render_ui(CUSTOM_CSS)
 
     menu_options = {
@@ -811,7 +786,6 @@ def main():
         menu_options[selected_option]()
 
 
-
 def render_ui(CUSTOM_CSS):
     """
     Renders the user interface components.
@@ -822,7 +796,18 @@ def render_ui(CUSTOM_CSS):
     st.markdown("---")
 
 
+def render_menu(options: list) -> str:
+    """
+    Renders the menu with options.
 
+    Args:
+        options (list): A list of options to be displayed in the menu.
+
+    Returns:
+        str: The selected option from the menu.
+    """
+    icons = ["book", "chat", "puzzle fill", "archive"]
+    return option_menu(None, options, icons=icons, menu_icon="cast", default_index=0, orientation="horizontal")
 
 
 if __name__ == "__main__":
