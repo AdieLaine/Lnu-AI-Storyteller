@@ -319,7 +319,7 @@ def enhance_with_gpt(prompt, final_reply, models):
     Returns:
         str: Enhanced reply.
     """
-    model_name = models.get("chat_model", "gpt-4-0613")
+    model_name = models.get("chat_model", "gpt-3.5-turbo-16k-0613")
     try:
         gpt_messages = [
             {"role": "system", "content": "You are Lnu-AI, an AI developed to promote and preserve the Mi'kmaq language and culture."},
@@ -455,7 +455,7 @@ def generate_story(all_word_details: dict, theme: str, story_word: str, image_th
     # Parameters like max_tokens, temperature, top_p, frequency_penalty, and presence_penalty can be tweaked
     # to adjust the output from the model.
     response = openai.ChatCompletion.create(
-        model="gpt-4-0613",
+        model="gpt-3.5-turbo-16k-0613",
         messages=[prompt_system, initial_story],
         max_tokens=2000,  # Maximum length of the generated text. Consider adjusting this for longer/shorter outputs.
         temperature=0.5,  # Controls the randomness of the output. Higher values (closer to 1) make output more random.
