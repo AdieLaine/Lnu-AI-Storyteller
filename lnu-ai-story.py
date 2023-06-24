@@ -364,7 +364,7 @@ def generate_openai_images(prompt, role="DALL-E", context="In the creative and v
     """
     try:
         full_prompt = f"{context} {prompt}"
-        truncated_prompt = full_prompt[:250]
+        truncated_prompt = full_prompt[:200]
         prompt_settings = {
             "model": "image-alpha-001",
             "prompt": truncated_prompt,
