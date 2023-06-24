@@ -307,7 +307,7 @@ def generate_openai_images(prompt, role="DALL-E", context="In the creative and v
 
 
 @st.cache_resource(show_spinner=False)
-def enhance_with_gpt(prompt, final_reply, models, max_tokens=2500):
+def enhance_with_gpt(prompt, final_reply, models, max_tokens=2000):
     """
     Enhances the reply with GPT model by sending the conversation for completion.
 
