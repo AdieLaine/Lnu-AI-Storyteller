@@ -195,7 +195,7 @@ def replace_placeholders_in_theme(theme: Dict[str, str], word: str, meaning: str
 
 
 @st.cache_resource(show_spinner=False)
-def enhance_with_gpt(prompt, final_reply, models, max_token=3000):
+def enhance_with_gpt(prompt, final_reply, models, max_token=1000):
     """
     Enhances the reply with GPT model by sending the conversation for completion.
 
@@ -364,7 +364,7 @@ def generate_openai_images(prompt, role="DALL-E", context="In the creative and v
     """
     try:
         full_prompt = f"{context} {prompt}"
-        truncated_prompt = full_prompt[:100]
+        truncated_prompt = full_prompt[:250]
         prompt_settings = {
             "model": "image-alpha-001",
             "prompt": truncated_prompt,
@@ -646,7 +646,7 @@ def display_word_details_main(selected_word: str, all_word_details: dict, tts_se
         sidebar.audio(audio_bytes, format='audio/wav')  # changed to sidebar
         os.remove(audio)  # Delete the temporary audio file after playing
 
-def generate_story(all_word_details: dict, theme: str, story_word: str, image_theme: str, max_tokens=1500) -> Tuple[str, str, str]:
+def generate_story(all_word_details: dict, theme: str, story_word: str, image_theme: str, max_tokens=1000) -> Tuple[str, str, str]:
     """
     Function to generate a story using OpenAI's GPT-4 model. Interacts with the OpenAI API to create a conversation
     and uses the returned message content as the generated story.
