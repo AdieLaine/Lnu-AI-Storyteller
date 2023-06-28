@@ -59,6 +59,7 @@ Lnu-AI is an Artificial Intelligence system developed to serve as a bridge betwe
 3. Copy the .env.example file and create a new .env file.
 4. Replace "your-openai-key" in the .env file with your actual OpenAI API Key.
 5. If required, replace other variables in the .env file based on your configuration.
+6. This code also uses Streamlit .streamlit/secrets.toml to store your OpenAI API Key and other sensitive information.
 
 ---
 

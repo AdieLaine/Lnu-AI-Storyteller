@@ -195,7 +195,7 @@ def replace_placeholders_in_theme(theme: Dict[str, str], word: str, meaning: str
 
 
 @st.cache_resource(show_spinner=False)
-def enhance_with_gpt(prompt, final_reply, models, max_token=1000):
+def enhance_with_gpt(prompt, final_reply, models, max_token=500):
     """
     Enhances the reply with GPT model by sending the conversation for completion.
 
@@ -350,20 +350,21 @@ def generate_audio(text, tts_service):
         raise ValueError(f"Invalid Text-to-Speech service: {tts_service}")
 
 
-def generate_openai_images(prompt, role="DALL-E", context="In the creative and vibrant style of Norval Morrisseau, using colorful Mi'kmaq themes"):
+@st.cache_data(show_spinner=True)
+def generate_openai_images(prompt, additional_prompt="In the creative and vibrant style of Norval Morrisseau, using colorful Mi'kmaq themes"):
     """
     Generates an image using the OpenAI's DALL-E model.
 
     Args:
-        prompt (str): The main role for the image generation.
-        context (str, optional): Context to provide to the image generation.
-                                 Defaults to "In the creative and vibrant style of Norval Morrisseau, using colorful Mi'kmaq themes".
+        prompt (str): The main prompt for the image generation.
+        additional_prompt (str, optional): Additional context for the image generation.
+                                           Defaults to "In the creative and vibrant style of Norval Morrisseau, using colorful Mi'kmaq themes".
 
     Returns:
         str: URL of the generated image if successful, else None.
     """
     try:
-        full_prompt = f"{context} {prompt}"
+        full_prompt = f"{additional_prompt} {prompt}"
         truncated_prompt = full_prompt[:200]
         prompt_settings = {
             "model": "image-alpha-001",
@@ -371,7 +372,7 @@ def generate_openai_images(prompt, role="DALL-E", context="In the creative and v
         }
         response_settings = {
             "num_images": 1,
-            "size": "1024x1024",
+            "size": "256x256",
             "response_format": "url"
         }
         openai_key = os.getenv("OPENAI_API_KEY", "your_default_key")  # Use your default key here
@@ -646,7 +647,7 @@ def display_word_details_main(selected_word: str, all_word_details: dict, tts_se
         sidebar.audio(audio_bytes, format='audio/wav')  # changed to sidebar
         os.remove(audio)  # Delete the temporary audio file after playing
 
-def generate_story(all_word_details: dict, theme: str, story_word: str, image_theme: str, max_tokens=1000) -> Tuple[str, str, str]:
+def generate_story(all_word_details: dict, theme: str, story_word: str, image_theme: str) -> Tuple[str, str, str]:
     """
     Function to generate a story using OpenAI's GPT-4 model. Interacts with the OpenAI API to create a conversation
     and uses the returned message content as the generated story.
@@ -686,7 +687,7 @@ def generate_story(all_word_details: dict, theme: str, story_word: str, image_th
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-0613",
         messages=[prompt_system, initial_story],
-        max_tokens=max_tokens,  # Maximum length of the generated text. Consider adjusting this for longer/shorter outputs.
+        max_tokens=800,  # Maximum length of the generated text. Consider adjusting this for longer/shorter outputs.
         temperature=0.5,  # Controls the randomness of the output. Higher values (closer to 1) make output more random.
         top_p=1.0,  # Controls the nucleus sampling. Lower values can make the output more focused.
         frequency_penalty=0.5,  # Controls penalizing new tokens based on their frequency.
