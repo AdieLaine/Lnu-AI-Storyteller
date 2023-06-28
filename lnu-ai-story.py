@@ -142,7 +142,7 @@ def load_env_variables() -> Tuple:
     }
 
     models = {
-        "chat_model": get_env_variable("CHAT_MODEL_SELECTION", default="gpt-4-0613"),
+        "chat_model": get_env_variable("CHAT_MODEL_SELECTION", default="gpt-3.5-turbo-0613"),
         "fine_tuned_model_dictionary": get_env_variable("FINE_TUNED_MODEL_DICTIONARY"),
         "fine_tuned_model_data": get_env_variable("FINE_TUNED_MODEL_DATA"),
     }
@@ -319,7 +319,7 @@ def generate_story(theme: str, story_word: str, image_theme: str) -> Tuple[str, 
     }
 
     response = openai.ChatCompletion.create(
-        model="gpt-4-0613",
+        model="gpt-3.5-turbo-0613",
         messages=[prompt_system, initial_story],
         max_tokens=850,
         temperature=0.3,
@@ -395,7 +395,7 @@ def enhance_with_gpt(prompt: str, final_reply: str, models: Dict, max_token: int
     Returns:
         str: Enhanced reply.
     """
-    model_name = models.get("chat_model", "gpt-4-0613")
+    model_name = models.get("chat_model", "gpt-3.5-turbo-0613")
     artist_role = ""
 
     additional_prompt = artist_style_prompt(artist_role)
