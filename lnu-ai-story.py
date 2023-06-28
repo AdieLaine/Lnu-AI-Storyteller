@@ -324,7 +324,7 @@ def generate_story(theme: str, story_word: str, image_theme: str) -> Tuple[str, 
         max_tokens=850,
         temperature=0.3,
         top_p=1.0,
-        frequency_penalty=0.1, #Depending on the context, using a low frequency_penalty can help with image generation
+        #frequency_penalty=0.1, #Depending on the context, using a low frequency_penalty can help with image generation
         #presence_penalty=0.5,
     )
 
