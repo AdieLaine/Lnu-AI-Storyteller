@@ -446,7 +446,7 @@ def generate_openai_images(prompt, artist_role="lnu"):
         full_prompt = f"{additional_prompt} {prompt}"
         truncated_prompt = full_prompt[:220]
         prompt_settings = {
-            "model": "dall-e-3",
+            "model": "dall-e-2",
             "prompt": truncated_prompt,
         }
         response_settings = {
