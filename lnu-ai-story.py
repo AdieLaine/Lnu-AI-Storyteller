@@ -382,7 +382,7 @@ def artist_style_prompt(artist_role):
     return artist_prompts.get(artist_role, "lnu")
 
 
-def enhance_with_gpt(prompt: str, final_reply: str, models: Dict, max_token: int = 300) -> str:
+def enhance_with_gpt(prompt: str, final_reply: str, models: Dict, max_token: int = 500) -> str:
     """
     Enhances the reply with GPT model by sending the conversation for completion.
 
@@ -446,7 +446,7 @@ def generate_openai_images(prompt, artist_role="lnu"):
         full_prompt = f"{additional_prompt} {prompt}"
         truncated_prompt = full_prompt[:220]
         prompt_settings = {
-            "model": "image-alpha-001",
+            "model": "dall-e-2",
             "prompt": truncated_prompt,
         }
         response_settings = {
