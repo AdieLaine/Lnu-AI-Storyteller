@@ -142,7 +142,7 @@ def load_env_variables() -> Tuple:
     }
 
     models = {
-        "chat_model": get_env_variable("CHAT_MODEL_SELECTION", default="gpt-3.5-turbo-0613"),
+        "chat_model": get_env_variable("CHAT_MODEL_SELECTION", default="gpt-4o-mini"),
         "fine_tuned_model_dictionary": get_env_variable("FINE_TUNED_MODEL_DICTIONARY"),
         "fine_tuned_model_data": get_env_variable("FINE_TUNED_MODEL_DATA"),
     }
@@ -319,7 +319,7 @@ def generate_story(theme: str, story_word: str, image_theme: str) -> Tuple[str, 
     }
 
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-0613",
+        model="gpt-4o-mini",
         messages=[prompt_system, initial_story],
         max_tokens=850,
         temperature=0.3,
@@ -395,7 +395,7 @@ def enhance_with_gpt(prompt: str, final_reply: str, models: Dict, max_token: int
     Returns:
         str: Enhanced reply.
     """
-    model_name = models.get("chat_model", "gpt-3.5-turbo-0613")
+    model_name = models.get("chat_model", "gpt-4o-mini")
     artist_role = ""
 
     additional_prompt = artist_style_prompt(artist_role)
@@ -505,7 +505,7 @@ def generate_and_display_images(story_text: str, image_theme: str) -> None:
     for image_url in image_urls:
         image_container.image(image_url, width=None, clamp=True, channels="RGB", output_format="png")
 
-def display_word_details_main(selected_word: str, all_word_details: dict, tts_settings: dict, sidebar: st.sidebar) -> None:
+def display_word_details_main(selected_word: str, all_word_details: dict, tts_settings: dict, sidebar: st.sidebar) -> None: # type: ignore
     """
     Function to display the details of a selected word.
 
